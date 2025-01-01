@@ -4,6 +4,7 @@
 
 #include <sim/search/SimpleAgent.h>
 #include <game/Game.h>
+#include <algorithm>
 #include "sim/PrintHelpers.h"
 
 #include <map>

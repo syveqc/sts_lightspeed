@@ -5,6 +5,7 @@
 #include "combat/Actions.h"
 #include "combat/BattleContext.h"
 #include "game/Game.h"
+#include <algorithm>
 
 using namespace sts;
 

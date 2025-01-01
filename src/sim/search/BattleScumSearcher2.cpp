@@ -8,6 +8,7 @@
 #include <utility>
 #include <string>
 #include <memory>
+#include <algorithm>
 
 using namespace sts;
 

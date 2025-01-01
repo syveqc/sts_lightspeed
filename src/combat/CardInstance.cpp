@@ -5,6 +5,7 @@
 #include "combat/CardInstance.h"
 
 #include "combat/BattleContext.h"
+#include <algorithm>
 
 using namespace sts;
 

@@ -8,6 +8,7 @@
 #include <game/Game.h>
 #include "sim/PrintHelpers.h"
 #include "sim/search/BattleScumSearcher2.h"
+#include <algorithm>
 
 using namespace sts;
 

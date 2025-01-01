@@ -6,6 +6,7 @@
 #include "game/Random.h"
 #include "combat/BattleContext.h"
 #include "game/GameContext.h"
+#include <algorithm>
 
 using namespace sts;
 

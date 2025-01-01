@@ -9,6 +9,7 @@
 #include "game/Card.h"
 
 #include "sim/search/BattleScumSearcher2.h"
+#include <algorithm>
 
 using namespace sts;
 
