@@ -8,7 +8,7 @@ To get started, first make sure you have `cmake` installed on your system. ([CMa
 
 Next, clone this repo and `cd` into it.
 ```bash
-git clone https://github.com/syveqc/sts_lightspeed
+git clone --recurse-submodules https://github.com/syveqc/sts_lightspeed
 cd sts_lightspeed
 ```
 
