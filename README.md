@@ -17,7 +17,7 @@ Then you can build it by running `cmake` (running in a `build` folder is recomme
 mkdir build
 cd build
 cmake ..
-cmake -build .
+cmake --build .
 ```
 
 ## Running the `python` interface
