@@ -1,32 +1,40 @@
-# sts_lightspeed
+# sts_lightspeed for Reinforcement Learning
 
-For tree search and simulation of the popular rogue-like deckbuilder game Slay The Spire
+This is a modified version of the [sts_lightspeed](https://github.com/gamerpuppy/sts_lightspeed) repo with the goal of using Reinforcement Learning to train a Slay the Spire Agent with super-human performance in winrate.
 
-**Features**
-* c++ 17 compiled with gcc
-* Standalone
-* Designed to be 100% RNG accurate*
-* Playable in console
-* Speed: 1M random playouts in 5s with 16 threads
-* Loading from save files (loading into combat currently only supported)
-* Tree Search (best result, knowing the state of the game's rng)
+## Getting Started
 
-**Planned Features**
-* Tree search of possible game outcomes (not given the state of rng)
+To get started, first make sure you have `cmake` installed on your system. ([CMake](https://cmake.org/))
 
-**Implementation Progress**
-* All enemies
-* All relics
-* All Ironclad cards
-* All colorless cards
-* Everything outside of combat / all acts
+Next, clone this repo and `cd` into it.
+```bash
+git clone https://github.com/syveqc/sts_lightspeed
+cd sts_lightspeed
+```
 
-**Getting Started**
-* The project was built with Clion2021 and the [mingw64 toolchain](https://www.msys2.org/) on Windows 10
-* The main target creates a simulator of the game that can be played in console.
-* The test target creates a program with various commands that can be run, including random simulation
-* Click the star button at the top of the repo :)
+Then you can build it by running `cmake` (running in a `build` folder is recommended)
+```bash
+mkdir build
+cd build
+cmake ..
+cmake -build .
+```
 
-**Build tips**
-* If your build fails with an error about not-return-only `constexpr` methods, ensure your compiler supports c++17.
-* If CLion shows an error about not finding python libs when loading the cmake project, try opening CLion from the msys2 shell.
+## Running the `python` interface
+
+To run the python interface, make sure that the generated shared object (e.g. `slaythespire.cpython-310-x86_64-linux-gnu.so`) is accessable to `python`. (e.g. by adding the `build` folder to the `PYTHONPATH` environment variable or executing `python` inside the build folder)
+
+Then you can simply import the module by running
+```python
+import slaythespire
+```
+
+## Planned Features
+
+ - [`gymnasium`](https://gymnasium.farama.org) interfaces for running Reinforcement Learning training on different stages of the game for the Ironclad (in this order):
+    - Fights
+    - Card Selection
+    - Relic Selction
+    - Path Selection
+ - `gymnasium` interfaces should be compatible with each other, e.g. training on fights and card selection should be possible to run concurrently, i.e. the card selection agent should learn which cards are optimal to select for the current fighting agent.
+ - training pipelines for those `gymnasium` environments.
