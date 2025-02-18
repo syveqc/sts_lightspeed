@@ -4,6 +4,9 @@
 #include <sstream>
 #include <algorithm>
 
+#include "combat/BattleContext.h"
+#include "combat/Player.h"
+#include "constants/PlayerStatusEffects.h"
 #include "sim/ConsoleSimulator.h"
 #include "sim/search/ScumSearchAgent2.h"
 #include "sim/SimHelpers.h"
@@ -14,6 +17,67 @@
 #include "slaythespire.h"
 
 namespace sts {
+
+    std::array<float, 21> RLInterface::getMonsterEmbedding(Monster &monster) {
+        std::array<float, 21> ret{};
+        ret[0] = (float) monster.id;
+        ret[1] = monster.curHp;
+        ret[2] = monster.maxHp;
+        ret[3] = monster.block;
+        ret[4] = monster.statusBits;
+        ret[5] = monster.artifact;
+        ret[6] = monster.blockReturn;
+        ret[7] = monster.choked;
+        ret[8] = monster.corpseExplosion;
+        ret[9] = monster.lockOn;
+        ret[10] = monster.mark;
+        ret[11] = monster.metallicize;
+        ret[12] = monster.platedArmor;
+        ret[13] = monster.poison;
+        ret[14] = monster.regen;
+        ret[15] = monster.shackled;
+        ret[16] = monster.strength;
+        ret[17] = monster.vulnerable;
+        ret[18] = monster.weak;
+        ret[19] = monster.uniquePower0;
+        ret[20] = monster.uniquePower1;
+        return ret;
+    }
+
+
+    std::array<float, 100> RLInterface::getPlayerEmbedding(Player &player) {
+        std::array<float, 100> ret{};
+        ret[0] = (float) player.cc;
+        ret[1] = player.curHp;
+        ret[2] = player.maxHp;
+        ret[3] = player.energy;
+        ret[4] = player.energyPerTurn;
+        ret[5] = player.cardDrawPerTurn;
+        ret[6] = (float) player.stance;
+        ret[7] = player.orbSlots;
+        ret[8] = player.block;
+        ret[9] = player.artifact;
+        ret[10] = player.dexterity;
+        ret[11] = player.focus;
+        ret[12] = player.strength;
+
+        for(int i = 0; i < 87; i++) {
+            ret[13+i] = player.getStatusRuntime(static_cast<PlayerStatus>(i));
+        }
+        return ret;
+    }
+
+    std::array<float, 126> RLInterface::getStateEmbedding(GameContext &gc, BattleContext &bc) {
+        std::array<float, 126> ret{};
+
+        std::array<float, 21> monsterEmbedding = RLInterface::getMonsterEmbedding(bc.monsters.arr[0]);
+        std::copy_n(monsterEmbedding.begin(), 21, ret.begin()+4);
+
+        std::array<float, 100> playerEmbedding = RLInterface::getPlayerEmbedding(bc.player);
+        std::copy_n(playerEmbedding.begin(), 100, ret.begin()+25);
+
+        return ret;
+    }
 
     NNInterface::NNInterface() :
             cardEncodeMap(createOneHotCardEncodingMap()),

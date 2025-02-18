@@ -7,9 +7,12 @@
 #include <pybind11/stl_bind.h>
 #include <pybind11/functional.h>
 
+#include <iostream>
 #include <sstream>
 #include <algorithm>
 
+#include "combat/BattleContext.h"
+#include "game/GameContext.h"
 #include "sim/ConsoleSimulator.h"
 #include "sim/search/ScumSearchAgent2.h"
 #include "sim/SimHelpers.h"
@@ -33,6 +36,31 @@ PYBIND11_MODULE(slaythespire, m) {
         .def("getObservationMaximums", &NNInterface::getObservationMaximums, "get the defined maximum values of the observation space")
         .def_property_readonly("observation_space_size", []() { return NNInterface::observation_space_size; });
 
+    pybind11::class_<RLInterface> rlInterface(m, "RLInterface");
+    rlInterface.def("getStateEmbedding", &RLInterface::getStateEmbedding, "get state embedding from given GameContext");
+
+    pybind11::class_<CardInstance> cardInstance(m, "CardInstance");
+    cardInstance.def(pybind11::init<CardId>())
+        .def("__repr__", [](const CardInstance &c) {
+            std::string s("<slaythespire.CardInstance ");
+            s += c.getName();
+            if (c.isUpgraded()) {
+                s += '+';
+                if (c.id == sts::CardId::SEARING_BLOW) {
+                    s += std::to_string(c.getUpgradeCount());
+                }
+            }
+            return s += ">";
+        }, "returns a string representation of a Card")
+        .def("upgrade", &CardInstance::upgrade);
+
+    cardInstance.def_property_readonly("id", &CardInstance::getId)
+        .def_property_readonly("upgraded", &CardInstance::isUpgraded)
+        .def_property_readonly("upgrade_count", &CardInstance::getUpgradeCount)
+        .def_property_readonly("upgradable", &CardInstance::canUpgrade)
+        .def_property_readonly("is_strikeCard", &CardInstance::isStrikeCard)
+        .def_property_readonly("type", &CardInstance::getType);
+
     pybind11::class_<search::ScumSearchAgent2> agent(m, "Agent");
     agent.def(pybind11::init<>());
     agent.def_readwrite("simulation_count_base", &search::ScumSearchAgent2::simulationCountBase, "number of simulations the agent uses for monte carlo tree search each turn")
@@ -40,6 +68,22 @@ PYBIND11_MODULE(slaythespire, m) {
         .def_readwrite("pause_on_card_reward", &search::ScumSearchAgent2::pauseOnCardReward, "causes the agent to pause so as to cede control to the user when it encounters a card reward choice")
         .def_readwrite("print_logs", &search::ScumSearchAgent2::printLogs, "when set to true, the agent prints state information as it makes actions")
         .def("playout", &search::ScumSearchAgent2::playout);
+
+
+
+    pybind11::class_<BattleContext> battleContext(m, "BattleContext");
+    battleContext.def(pybind11::init<>());
+    battleContext.def("init", [](BattleContext &bc, GameContext gc, MonsterEncounter encounter){bc.init(gc, encounter);}, "initializes the BattleContext");
+    battleContext.def("printMonsterGroup", [](BattleContext &bc){
+            for (int i = 0; i < 5; i++) {
+                std::cout << (int)bc.monsters.arr[i].id << ": " << bc.monsters.arr[i].curHp << "/" << bc.monsters.arr[i].maxHp << std::endl;
+            }
+        }, "prints the current monsters in the monster group")
+        .def("playCard", [](BattleContext &bc, CardInstance card, int target){
+             bc.setState(InputState::EXECUTING_ACTIONS);
+             bc.addToBotCard(CardQueueItem(card, target, bc.player.energy));
+             bc.executeActions();
+        }, "plays a card at a target");
 
     pybind11::class_<GameContext> gameContext(m, "GameContext");
     gameContext.def(pybind11::init<CharacterClass, std::uint64_t, int>())
@@ -73,7 +117,8 @@ PYBIND11_MODULE(slaythespire, m) {
             std::ostringstream oss;
             oss << "<" << gc << ">";
             return oss.str();
-        }, "returns a string representation of the GameContext");
+        }, "returns a string representation of the GameContext")
+        .def("populateMonsterList", &GameContext::populateMonsterList, "randomly generate a new encounter and populate the monsters list with it");
 
     gameContext.def_readwrite("outcome", &GameContext::outcome)
         .def_readwrite("act", &GameContext::act)

@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <array>
 
+#include "combat/MonsterGroup.h"
+#include "combat/Player.h"
 #include "constants/Rooms.h"
 
 namespace sts {
@@ -35,6 +37,12 @@ namespace sts {
         static std::unordered_map<MonsterEncounter, int> createBossEncodingMap();
         static NNInterface* getInstance();
 
+    };
+
+    struct RLInterface{
+        static std::array<float, 126> getStateEmbedding(GameContext &gc, BattleContext &bc);
+        static std::array<float, 21> getMonsterEmbedding(Monster &monster);
+        static std::array<float, 100> getPlayerEmbedding(Player &player);
     };
 
     namespace search {
