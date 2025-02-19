@@ -278,6 +278,7 @@ PYBIND11_MODULE(slaythespire, m) {
             return s += ">";
         }, "returns a string representation of a Card")
         .def("upgrade", &Card::upgrade)
+        .def("getCardId", &Card::getId, "get the id of the Card")
         .def_readwrite("misc", &Card::misc, "value internal to the simulator used for things like ritual dagger damage");
 
     card.def_property_readonly("id", &Card::getId)
