@@ -87,6 +87,13 @@ PYBIND11_MODULE(slaythespire, m) {
              bc.addToBotCard(CardQueueItem(card, target, bc.player.energy));
              bc.executeActions();
         }, "plays a card at a target")
+        .def("getPlayableCards", [](BattleContext &bc) {
+             std::vector<Card> playableCards;
+             for (int i = 0; i < bc.cards.cardsInHand; i++)
+                if (bc.cards.hand[i].costForTurn <= bc.player.energy)
+                    playableCards.push_back(Card(bc.cards.hand[i].getId()));
+             return playableCards;
+        }, "print the cards in the hand")
         .def("printHand", [](BattleContext &bc) {
              for (int i = 0; i < bc.cards.cardsInHand; i++)
                 std::cout << bc.cards.hand[i].getName() << std::endl;
