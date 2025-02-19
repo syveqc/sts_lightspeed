@@ -18,8 +18,8 @@
 
 namespace sts {
 
-    std::array<float, 21> RLInterface::getMonsterEmbedding(Monster &monster) {
-        std::array<float, 21> ret{};
+    std::array<float, 22> RLInterface::getMonsterEmbedding(Monster &monster) {
+        std::array<float, 22> ret{};
         ret[0] = (float) monster.id;
         ret[1] = monster.curHp;
         ret[2] = monster.maxHp;
@@ -41,6 +41,7 @@ namespace sts {
         ret[18] = monster.weak;
         ret[19] = monster.uniquePower0;
         ret[20] = monster.uniquePower1;
+        ret[21] = (float)monster.moveHistory[0];
         return ret;
     }
 
@@ -119,6 +120,7 @@ namespace sts {
             std::cout << "monster.weak:" << monster.weak << std::endl;
             std::cout << "monster.uniquePower0:" << monster.uniquePower0 << std::endl;
             std::cout << "monster.uniquePower1:" << monster.uniquePower1 << std::endl;
+            std::cout << "monster.nextMove: " << (float)monster.moveHistory[0] << std::endl;
             std::cout << "---------------------------------------" << std::endl;
         }
         std::cout << "cardsInHand: " << bc.cards.cardsInHand << std::endl;
@@ -128,16 +130,18 @@ namespace sts {
 
     std::array<float, 209> RLInterface::getStateEmbedding(GameContext &gc, BattleContext &bc) {
         std::array<float, 209> ret{};
+    std::array<float, 214> RLInterface::getStateEmbedding(GameContext &gc, BattleContext &bc) {
+        std::array<float, 214> ret{};
 
         for(int i = 0; i < 5; i++) {
-            std::array<float, 21> monsterEmbedding = RLInterface::getMonsterEmbedding(bc.monsters.arr[0]);
-            std::copy_n(monsterEmbedding.begin(), 21, ret.begin()+4+21*i);
+            std::array<float, 22> monsterEmbedding = RLInterface::getMonsterEmbedding(bc.monsters.arr[0]);
+            std::copy_n(monsterEmbedding.begin(), 22, ret.begin()+4+22*i);
         }
 
         std::array<float, 100> playerEmbedding = RLInterface::getPlayerEmbedding(bc.player);
-        std::copy_n(playerEmbedding.begin(), 100, ret.begin()+109);
+        std::copy_n(playerEmbedding.begin(), 100, ret.begin()+114);
 
-        ret[125] = bc.cards.cardsInHand;
+        ret[213] = bc.cards.cardsInHand;
 
         return ret;
     }
