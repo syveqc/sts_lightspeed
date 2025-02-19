@@ -138,31 +138,36 @@ PYBIND11_MODULE(slaythespire, m) {
             std::mt19937 gen(rd());
             std::uniform_real_distribution<double> distr(0.0, 1.0);
             for (int i = 0; i < numberOfCards; i++) {
+                std::vector<CardId> *cardCollection;
                 switch (cc) {
-                    case CharacterClass::IRONCLAD:
-                        int size = gc.redCards.size() + gc.colorlessCards.size() + gc.curseCards.size();
-                        double random = distr(gen);
-                        int id = int(random*size);
-
-                        CardId cardid = CardId::INVALID;
-                        if (id < gc.redCards.size())
-                            cardid = gc.redCards[id];
-                        else if(id < gc.redCards.size() + gc.colorlessCards.size())
-                            cardid = gc.colorlessCards[id-gc.redCards.size()];
-                        else
-                            cardid = gc.colorlessCards[id-gc.redCards.size()-gc.colorlessCards.size()];
-
-                        Card card = Card(cardid);
-                        std::cout << id << ": " << card.getName() << ", type: " << (int)card.getType() << std::endl;
-                        gc.deck.obtain(gc, card, 1);
+                    case CharacterClass::IRONCLAD: 
+                        cardCollection = &(gc.redCards);
                         break;
-                    // case CharacterClass::SILENT:
-                    //     break;
-                    // case CharacterClass::DEFECT:
-                    //     break;
-                    // case CharacterClass::WATCHER:
-                    //     break;
+                    case CharacterClass::SILENT:
+                        cardCollection = &(gc.greenCards);
+                        break;
+                    case CharacterClass::DEFECT:
+                        cardCollection = &(gc.blueCards);
+                        break;
+                    case CharacterClass::WATCHER:
+                        cardCollection = &(gc.purpleCards);
+                        break;
                  }
+                int size = cardCollection->size() + gc.colorlessCards.size() + gc.curseCards.size();
+                double random = distr(gen);
+                int id = int(random*size);
+
+                CardId cardid = CardId::INVALID;
+                if (id < cardCollection->size())
+                    cardid = (*cardCollection)[id];
+                else if(id < cardCollection->size() + gc.colorlessCards.size())
+                    cardid = gc.colorlessCards[id-gc.redCards.size()];
+                else
+                    cardid = gc.colorlessCards[id-gc.redCards.size()-gc.colorlessCards.size()];
+
+                Card card = Card(cardid);
+                // std::cout << id << ": " << card.getName() << ", type: " << (int)card.getType() << std::endl;
+                gc.deck.obtain(gc, card, 1);
             }
         }, "generates a random deck")
         .def("addCardToDeck", [](GameContext &gc, CardId cardId, int count) {
