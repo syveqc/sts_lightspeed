@@ -40,8 +40,8 @@ namespace sts {
     };
 
     struct RLInterface{
-        static std::array<float, 209> getStateEmbedding(GameContext &gc, BattleContext &bc);
-        static std::array<float, 21> getMonsterEmbedding(Monster &monster);
+        static std::array<float, 214> getStateEmbedding(GameContext &gc, BattleContext &bc);
+        static std::array<float, 22> getMonsterEmbedding(Monster &monster);
         static std::array<float, 100> getPlayerEmbedding(Player &player);
         static void prettyPrintStateEmbedding(GameContext &gc, BattleContext &bc);
     };
