@@ -76,6 +76,8 @@ namespace sts {
         std::array<float, 100> playerEmbedding = RLInterface::getPlayerEmbedding(bc.player);
         std::copy_n(playerEmbedding.begin(), 100, ret.begin()+25);
 
+        ret[125] = bc.cards.cardsInHand;
+
         return ret;
     }
 
