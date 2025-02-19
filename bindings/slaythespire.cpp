@@ -95,7 +95,12 @@ PYBIND11_MODULE(slaythespire, m) {
              bc.setState(InputState::EXECUTING_ACTIONS);
              bc.addToBotCard(CardQueueItem(bc.cards.hand[idInHand], target, bc.player.energy));
              bc.executeActions();
-        }, "plays a card at a target");
+        }, "plays a card at a target")
+        .def("endTurn", [](BattleContext &bc){
+             bc.endTurn();
+             bc.setState(InputState::EXECUTING_ACTIONS);
+             bc.executeActions();
+        }, "ends the players turn");
 
     pybind11::class_<GameContext> gameContext(m, "GameContext");
     gameContext.def(pybind11::init<CharacterClass, std::uint64_t, int>())
