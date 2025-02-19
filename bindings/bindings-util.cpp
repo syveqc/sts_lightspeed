@@ -67,14 +67,75 @@ namespace sts {
         return ret;
     }
 
-    std::array<float, 126> RLInterface::getStateEmbedding(GameContext &gc, BattleContext &bc) {
-        std::array<float, 126> ret{};
+    void RLInterface::prettyPrintStateEmbedding(GameContext &gc, BattleContext &bc) {
+        std::cout << "---------------------------------------" << std::endl;
 
-        std::array<float, 21> monsterEmbedding = RLInterface::getMonsterEmbedding(bc.monsters.arr[0]);
-        std::copy_n(monsterEmbedding.begin(), 21, ret.begin()+4);
+        Player player = bc.player;
+        std::cout << "player.cc:" << (int)player.cc << std::endl;
+        std::cout << "player.curHp:" << player.curHp << std::endl;
+        std::cout << "player.maxHp:" << player.maxHp << std::endl;
+        std::cout << "player.energy:" << player.energy << std::endl;
+        std::cout << "player.energyPerTurn:" << player.energyPerTurn << std::endl;
+        std::cout << "player.cardDrawPerTurn:" << player.cardDrawPerTurn << std::endl;
+        std::cout << "player.stance:" << (int)player.stance << std::endl;
+        std::cout << "player.orbSlots:" << player.orbSlots << std::endl;
+        std::cout << "player.block:" << player.block << std::endl;
+        std::cout << "player.artifact:" << player.artifact << std::endl;
+        std::cout << "player.dexterity:" << player.dexterity << std::endl;
+        std::cout << "player.focus:" << player.focus << std::endl;
+        std::cout << "player.strength:" << player.strength << std::endl;
+        for(int i = 0; i < 87; i++) {
+            PlayerStatus status = static_cast<PlayerStatus>(i);
+            int statusState = player.getStatusRuntime(status);
+            if (statusState > 0)
+                std::cout << "player.status." << playerStatusStrings[i] << ": " << statusState << std::endl;
+        }
+
+        std::cout << "---------------------------------------" << std::endl;
+
+        for (int i = 0; i < 5; i++) {
+            Monster monster = bc.monsters.arr[i];
+            if (monster.id == MonsterId::INVALID)
+                continue;
+            std::cout << "monster number " << i << std::endl;
+            std::cout << "monster.id:" << (int) monster.id << std::endl;
+            std::cout << "monster.curHp:" << monster.curHp << std::endl;
+            std::cout << "monster.maxHp:" << monster.maxHp << std::endl;
+            std::cout << "monster.block:" << monster.block << std::endl;
+            std::cout << "monster.statusBits:" << monster.statusBits << std::endl;
+            std::cout << "monster.artifact:" << monster.artifact << std::endl;
+            std::cout << "monster.blockReturn:" << monster.blockReturn << std::endl;
+            std::cout << "monster.choked:" << monster.choked << std::endl;
+            std::cout << "monster.corpseExplosion:" << monster.corpseExplosion << std::endl;
+            std::cout << "monster.lockOn:" << monster.lockOn << std::endl;
+            std::cout << "monster.mark:" << monster.mark << std::endl;
+            std::cout << "monster.metallicize:" << monster.metallicize << std::endl;
+            std::cout << "monster.platedArmor:" << monster.platedArmor << std::endl;
+            std::cout << "monster.poison:" << monster.poison << std::endl;
+            std::cout << "monster.regen:" << monster.regen << std::endl;
+            std::cout << "monster.shackled:" << monster.shackled << std::endl;
+            std::cout << "monster.strength:" << monster.strength << std::endl;
+            std::cout << "monster.vulnerable:" << monster.vulnerable << std::endl;
+            std::cout << "monster.weak:" << monster.weak << std::endl;
+            std::cout << "monster.uniquePower0:" << monster.uniquePower0 << std::endl;
+            std::cout << "monster.uniquePower1:" << monster.uniquePower1 << std::endl;
+            std::cout << "---------------------------------------" << std::endl;
+        }
+        std::cout << "cardsInHand: " << bc.cards.cardsInHand << std::endl;
+
+        std::cout << "---------------------------------------" << std::endl;
+    }
+
+    std::array<float, 209> RLInterface::getStateEmbedding(GameContext &gc, BattleContext &bc) {
+        std::array<float, 209> ret{};
+
+        for(int i = 0; i < 5; i++) {
+            std::array<float, 21> monsterEmbedding = RLInterface::getMonsterEmbedding(bc.monsters.arr[0]);
+            std::copy_n(monsterEmbedding.begin(), 21, ret.begin()+4+21*i);
+        }
 
         std::array<float, 100> playerEmbedding = RLInterface::getPlayerEmbedding(bc.player);
-        std::copy_n(playerEmbedding.begin(), 100, ret.begin()+25);
+        std::copy_n(playerEmbedding.begin(), 100, ret.begin()+109);
 
         ret[125] = bc.cards.cardsInHand;
 
