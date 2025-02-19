@@ -8,10 +8,12 @@
 #include <pybind11/functional.h>
 
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <algorithm>
 
 #include "combat/BattleContext.h"
+#include "constants/CharacterClasses.h"
 #include "game/GameContext.h"
 #include "sim/ConsoleSimulator.h"
 #include "sim/search/ScumSearchAgent2.h"
@@ -118,7 +120,86 @@ PYBIND11_MODULE(slaythespire, m) {
             oss << "<" << gc << ">";
             return oss.str();
         }, "returns a string representation of the GameContext")
-        .def("populateMonsterList", &GameContext::populateMonsterList, "randomly generate a new encounter and populate the monsters list with it");
+        .def("populateMonsterList", &GameContext::populateMonsterList, "randomly generate a new encounter and populate the monsters list with it")
+        .def("generateRandomDeck", [](GameContext &gc, int numberOfCards, CharacterClass cc, int seed) {
+            while(gc.deck.size() > 0) {
+                gc.deck.remove(gc, gc.deck.size()-1);
+            }
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_real_distribution<double> distr(0.0, 1.0);
+            for (int i = 0; i < numberOfCards; i++) {
+                switch (cc) {
+                    case CharacterClass::IRONCLAD:
+                        int size = gc.redCards.size() + gc.colorlessCards.size() + gc.curseCards.size();
+                        double random = distr(gen);
+                        int id = int(random*size);
+
+                        CardId cardid = CardId::INVALID;
+                        if (id < gc.redCards.size())
+                            cardid = gc.redCards[id];
+                        else if(id < gc.redCards.size() + gc.colorlessCards.size())
+                            cardid = gc.colorlessCards[id-gc.redCards.size()];
+                        else
+                            cardid = gc.colorlessCards[id-gc.redCards.size()-gc.colorlessCards.size()];
+
+                        Card card = Card(cardid);
+                        std::cout << id << ": " << card.getName() << ", type: " << (int)card.getType() << std::endl;
+                        gc.deck.obtain(gc, card, 1);
+                        break;
+                    // case CharacterClass::SILENT:
+                    //     break;
+                    // case CharacterClass::DEFECT:
+                    //     break;
+                    // case CharacterClass::WATCHER:
+                    //     break;
+                 }
+            }
+        }, "generates a random deck")
+        .def("addCardToDeck", [](GameContext &gc, CardId cardId, int count) {
+            Card card = Card(cardId);
+            gc.deck.obtain(gc, card, count);
+        }, "add a specific card to the deck")
+        .def("printCardLists", [](GameContext &gc) {
+            // Display categorized cards
+            std::cout << "Red Cards: ";
+            for (const auto& card : gc.redCards) {
+                std::cout << "CardId::" << cardEnumStrings[static_cast<int>(card)] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "Green Cards: ";
+            for (const auto& card : gc.greenCards) {
+                std::cout << "CardId::" << cardEnumStrings[static_cast<int>(card)] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "Blue Cards: ";
+            for (const auto& card : gc.blueCards) {
+                std::cout << "CardId::" << cardEnumStrings[static_cast<int>(card)] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "Purple Cards: ";
+            for (const auto& card : gc.purpleCards) {
+                std::cout << "CardId::" << cardEnumStrings[static_cast<int>(card)] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "Curse Cards: ";
+            for (const auto& card : gc.curseCards) {
+                std::cout << "CardId::" << cardEnumStrings[static_cast<int>(card)] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "Colorless Cards: ";
+            for (const auto& card : gc.colorlessCards) {
+                std::cout << "CardId::" << cardEnumStrings[static_cast<int>(card)] << " ";
+            }
+            std::cout << std::endl;
+
+        }, "debug method: print all the card lists grouped by color");
+
 
     gameContext.def_readwrite("outcome", &GameContext::outcome)
         .def_readwrite("act", &GameContext::act)

@@ -6,7 +6,10 @@
 
 #include <algorithm>
 #include <cassert>
+#include <vector>
+#include <unordered_map>
 
+#include "constants/Cards.h"
 #include "constants/RelicPools.h"
 #include "constants/CardPools.h"
 #include "combat/BattleContext.h"
@@ -62,6 +65,7 @@ GameContext::GameContext(CharacterClass cc, std::uint64_t seed, int ascension)
     generateMonsters();
     initRelics();
     initPlayer();
+    initCardLists();
 
     potionCapacity = ascension < 11 ? 3 : 2;
     std::fill(potions.begin(), potions.end(), Potion::EMPTY_POTION_SLOT);
@@ -520,6 +524,30 @@ void GameContext::initPlayer() {
             break;
     }
     curHp = ascension < 6 ? maxHp : std::round(static_cast<float>(maxHp) * 0.9f);
+}
+
+
+// Function to categorize cards by color
+void GameContext::initCardLists() {
+    // Map for easy color matching
+    std::unordered_map<CardColor, std::vector<CardId>*> colorMap;
+    colorMap[CardColor::RED] = &redCards;
+    colorMap[CardColor::GREEN] = &greenCards;
+    colorMap[CardColor::BLUE] = &blueCards;
+    colorMap[CardColor::PURPLE] = &purpleCards;
+    colorMap[CardColor::COLORLESS] = &colorlessCards;
+    colorMap[CardColor::CURSE] = &curseCards;
+
+    // Loop through the cardColors array and assign cards to their respective color arrays
+    for (int i = 0; i <= (int) CardId::ZAP; ++i) {
+        CardColor color = cardColors[i];
+        if(color != CardColor::INVALID){
+            CardId cardId = static_cast<CardId>(i);
+            Card card = Card(cardId);
+            if (card.getType() != CardType::STATUS and card.getType() != CardType::INVALID)
+                colorMap[color]->push_back(cardId);
+        }
+    }
 }
 
 void GameContext::generateMonsters() {

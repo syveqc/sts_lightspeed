@@ -154,6 +154,14 @@ namespace sts {
         static constexpr bool disablePrismaticShard = true;
         bool skipBattles = false;
 
+        // ********* card color arrays **********
+        std::vector<CardId> redCards;
+        std::vector<CardId> greenCards;
+        std::vector<CardId> blueCards;
+        std::vector<CardId> purpleCards;
+        std::vector<CardId> colorlessCards;
+        std::vector<CardId> curseCards;
+
         // ********* hidden from player *********
         std::uint64_t seed;
 
@@ -257,6 +265,7 @@ namespace sts {
         // initialization
         void initRelics();
         void initPlayer();
+        void initCardLists();
         void generateMonsters();
         void generateWeakMonsters();
         void generateStrongMonsters();
