@@ -11,6 +11,7 @@
 
 #include "combat/MonsterGroup.h"
 #include "combat/Player.h"
+#include "constants/MonsterEncounters.h"
 #include "constants/Rooms.h"
 
 namespace sts {
@@ -44,6 +45,7 @@ namespace sts {
         static std::array<float, 22> getMonsterEmbedding(Monster &monster);
         static std::array<float, 100> getPlayerEmbedding(Player &player);
         static void prettyPrintStateEmbedding(GameContext &gc, BattleContext &bc);
+        static std::vector<MonsterEncounter> getImplementedMonsterEncounters();
     };
 
     namespace search {
