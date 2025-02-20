@@ -63,6 +63,7 @@ namespace sts {
         ret[12] = player.strength;
 
         for(int i = 0; i < 87; i++) {
+            // std::cout << (int) i << std::endl;
             ret[13+i] = player.getStatusRuntime(static_cast<PlayerStatus>(i));
         }
         return ret;
