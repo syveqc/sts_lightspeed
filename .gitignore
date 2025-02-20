@@ -3,3 +3,4 @@
 /.idea/
 /build
 *.hdf5
+**/__pycache__
