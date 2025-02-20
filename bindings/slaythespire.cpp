@@ -159,14 +159,14 @@ PYBIND11_MODULE(slaythespire, m) {
             return oss.str();
         }, "returns a string representation of the GameContext")
         .def("populateMonsterList", &GameContext::populateMonsterList, "randomly generate a new encounter and populate the monsters list with it")
-        .def("generateRandomDeck", [](GameContext &gc, int numberOfCards, CharacterClass cc, int seed) {
-            while(gc.deck.size() > 0) {
+        .def("generateRandomDeck", [](GameContext &gc, int numberOfCardsToGenerate, CharacterClass cc, int seed, int retainCards) {
+            while(gc.deck.size() > retainCards) {
                 gc.deck.remove(gc, gc.deck.size()-1);
             }
             std::random_device rd;
             std::mt19937 gen(rd());
             std::uniform_real_distribution<double> distr(0.0, 1.0);
-            for (int i = 0; i < numberOfCards; i++) {
+            for (int i = 0; i < numberOfCardsToGenerate; i++) {
                 std::vector<CardId> *cardCollection;
                 switch (cc) {
                     case CharacterClass::IRONCLAD: 
@@ -195,7 +195,6 @@ PYBIND11_MODULE(slaythespire, m) {
                     cardid = gc.colorlessCards[id-gc.redCards.size()-gc.colorlessCards.size()];
 
                 Card card = Card(cardid);
-                // std::cout << id << ": " << card.getName() << ", type: " << (int)card.getType() << std::endl;
                 gc.deck.obtain(gc, card, 1);
             }
         }, "generates a random deck")
@@ -375,6 +374,11 @@ PYBIND11_MODULE(slaythespire, m) {
         .value("CURSE", CardType::CURSE)
         .value("STATUS", CardType::STATUS)
         .value("INVALID", CardType::INVALID);
+
+    pybind11::enum_<Outcome>(m, "Outcome")
+        .value("UNDECIDED", Outcome::UNDECIDED)
+        .value("PLAYER_VICTORY", Outcome::PLAYER_VICTORY)
+        .value("PLAYER_LOSS", Outcome::PLAYER_LOSS);
 
     pybind11::enum_<CardId>(m, "CardId")
         .value("INVALID", CardId::INVALID)
