@@ -2,3 +2,6 @@ numpy
 h5py
 jax
 tqdm
+flax
+optax
+matplotlib
