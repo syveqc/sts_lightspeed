@@ -132,7 +132,7 @@ namespace sts {
         std::array<float, 214> ret{};
 
         for(int i = 0; i < 5; i++) {
-            std::array<float, 22> monsterEmbedding = RLInterface::getMonsterEmbedding(bc.monsters.arr[0]);
+            std::array<float, 22> monsterEmbedding = RLInterface::getMonsterEmbedding(bc.monsters.arr[i]);
             std::copy_n(monsterEmbedding.begin(), 22, ret.begin()+4+22*i);
         }
 
