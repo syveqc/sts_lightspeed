@@ -41,6 +41,7 @@ PYBIND11_MODULE(slaythespire, m) {
     pybind11::class_<RLInterface> rlInterface(m, "RLInterface");
     rlInterface.def("getStateEmbedding", &RLInterface::getStateEmbedding, "get state embedding from given GameContext");
     rlInterface.def("prettyPrintStateEmbedding", &RLInterface::prettyPrintStateEmbedding, "pretty print the state embedding from given GameContext");
+    rlInterface.def("getImplementedMonsterEncounters", &RLInterface::getImplementedMonsterEncounters, "return a list of implemented monster encounters");
 
     pybind11::class_<CardInstance> cardInstance(m, "CardInstance");
     cardInstance.def(pybind11::init<CardId>())
