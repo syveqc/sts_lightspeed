@@ -19,18 +19,18 @@ target_include_directories(slaythespire PUBLIC json/single_include)
 target_include_directories(slaythespire PUBLIC bindings)
 
 
-add_executable(main apps/main.cpp ${sts_lightspeed_SOURCES})
-target_link_directories(main PRIVATE json::nlohmann_json)
-target_include_directories(main PUBLIC include)
-target_include_directories(main PUBLIC json/include)
-
-add_executable(test apps/test.cpp ${sts_lightspeed_SOURCES})
-target_include_directories(test PUBLIC include)
-target_link_directories(test PUBLIC json::nlohmann_json)
-target_include_directories(test PUBLIC json/include)
-
-add_executable(small-test apps/small-test.cpp bindings/bindings-util.cpp ${sts_lightspeed_SOURCES})
-target_link_directories(small-test PRIVATE json::nlohmann_json)
-target_include_directories(small-test PUBLIC include)
-target_include_directories(small-test PUBLIC json/include)
-target_include_directories(small-test PUBLIC bindings)
+# add_executable(main apps/main.cpp ${sts_lightspeed_SOURCES})
+# target_link_directories(main PRIVATE json::nlohmann_json)
+# target_include_directories(main PUBLIC include)
+# target_include_directories(main PUBLIC json/include)
+#
+# add_executable(test apps/test.cpp ${sts_lightspeed_SOURCES})
+# target_include_directories(test PUBLIC include)
+# target_link_directories(test PUBLIC json::nlohmann_json)
+# target_include_directories(test PUBLIC json/include)
+#
+# add_executable(small-test apps/small-test.cpp bindings/bindings-util.cpp ${sts_lightspeed_SOURCES})
+# target_link_directories(small-test PRIVATE json::nlohmann_json)
+# target_include_directories(small-test PUBLIC include)
+# target_include_directories(small-test PUBLIC json/include)
+# target_include_directories(small-test PUBLIC bindings)
