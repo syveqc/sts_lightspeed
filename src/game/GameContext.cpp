@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
-#include <unordered_map>
 
 #include "constants/Cards.h"
 #include "constants/RelicPools.h"
@@ -544,7 +543,7 @@ void GameContext::initCardLists() {
         if(color != CardColor::INVALID){
             CardId cardId = static_cast<CardId>(i);
             Card card = Card(cardId);
-            if (card.getType() != CardType::STATUS and card.getType() != CardType::INVALID)
+            if (card.getType() != CardType::STATUS and card.getType() != CardType::INVALID and isImplementedCardId.find(cardId) != isImplementedCardId.end())
                 colorMap[color]->push_back(cardId);
         }
     }
