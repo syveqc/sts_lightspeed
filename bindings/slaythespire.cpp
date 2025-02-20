@@ -83,16 +83,31 @@ PYBIND11_MODULE(slaythespire, m) {
                 std::cout << (int)bc.monsters.arr[i].id << ": " << bc.monsters.arr[i].curHp << "/" << bc.monsters.arr[i].maxHp << std::endl;
             }
         }, "prints the current monsters in the monster group")
+        .def_readwrite("outcome", &BattleContext::outcome)
+        .def("getAliveMonsterIds", [](BattleContext &bc){
+             std::vector<int> ids;
+             for(int i =0; i < 5; i++)
+                if (bc.monsters.arr[i].id != MonsterId::INVALID && bc.monsters.arr[i].isAlive())
+                    ids.push_back(i);
+             return ids;
+             }, "get the ids of all the monsters currently alive")
+        .def("getTargetableMonsterIds", [](BattleContext &bc){
+             std::vector<int> ids;
+             for(int i =0; i < 5; i++)
+                if (bc.monsters.arr[i].id != MonsterId::INVALID && bc.monsters.arr[i].isTargetable())
+                    ids.push_back(i);
+             return ids;
+             }, "get the ids of all the monsters currently targetable")
         .def("playCard", [](BattleContext &bc, CardInstance card, int target){
              bc.setState(InputState::EXECUTING_ACTIONS);
              bc.addToBotCard(CardQueueItem(card, target, bc.player.energy));
              bc.executeActions();
         }, "plays a card at a target")
         .def("getPlayableCards", [](BattleContext &bc) {
-             std::vector<Card> playableCards;
+             std::vector<CardInstance> playableCards;
              for (int i = 0; i < bc.cards.cardsInHand; i++)
-                if (bc.cards.hand[i].costForTurn <= bc.player.energy)
-                    playableCards.push_back(Card(bc.cards.hand[i].getId()));
+                if (bc.cards.hand[i].canUseOnAnyTarget(bc))
+                    playableCards.push_back(bc.cards.hand[i]);
              return playableCards;
         }, "print the cards in the hand")
         .def("printHand", [](BattleContext &bc) {
