@@ -1,3 +1,5 @@
 /cmake-build-*/
 /files/
 /.idea/
+/build
+*.hdf5
