@@ -2,11 +2,13 @@
 // Created by gamerpuppy on 7/4/2021.
 //
 
+#include <algorithm>
 #include <cassert>
 
 #include <constants/PlayerStatusEffects.h>
 #include <combat/BattleContext.h>
 #include <combat/Actions.h>
+#include <iostream>
 #include "combat/Player.h"
 
 using namespace sts;
@@ -58,6 +60,9 @@ int Player::getStatusRuntime(PlayerStatus s) const {
             return strength;
         default:
             if (hasStatusRuntime(s)) {
+                typename std::map<PlayerStatus, std::int16_t>::const_iterator it = statusMap.find(s);
+                if (it == statusMap.end())
+                    return 1;
                 return statusMap.at(s);
             } else {
                 return 0;
