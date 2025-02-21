@@ -4,8 +4,8 @@ import jax.numpy as jnp
 import optax
 import h5py
 
-def train_with_model(model, dist, batch_size, train_steps):
-    optimizer = nnx.Optimizer(model, optax.adam(1e-3))  # reference sharing
+def train_with_model(model, dist, batch_size, train_steps, learning_rate=1e-3):
+    optimizer = nnx.Optimizer(model, optax.adam(learning_rate))  # reference sharing
 
     @nnx.jit  # automatic state management for JAX transforms
     def train_step(model, optimizer, a1, s01, s11, a2, s02, s12):
