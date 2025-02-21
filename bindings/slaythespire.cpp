@@ -103,6 +103,10 @@ PYBIND11_MODULE(slaythespire, m) {
              bc.addToBotCard(CardQueueItem(card, target, bc.player.energy));
              bc.executeActions();
         }, "plays a card at a target")
+        .def("getCardsInHand", [](BattleContext &bc) {
+             auto hand = bc.cards.hand; // copy because of error
+             return hand;
+        }, "get the cards currently in hand")
         .def("getPlayableCards", [](BattleContext &bc) {
              std::vector<CardInstance> playableCards;
              for (int i = 0; i < bc.cards.cardsInHand; i++)
