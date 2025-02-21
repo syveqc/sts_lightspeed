@@ -8,3 +8,6 @@ matplotlib
 gymnasium
 seaborn
 pandas
+torch
+stable_baselines3
+orbax
