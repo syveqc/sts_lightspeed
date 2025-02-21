@@ -5,4 +5,5 @@
 *.hdf5
 **/__pycache__
 *.zip
+*.npy
 **/checkpoints
