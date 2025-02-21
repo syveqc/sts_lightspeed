@@ -22,7 +22,8 @@ class StsFightEnv(gym.Env):
 
         self.monster_encounters = sts.RLInterface.getImplementedMonsterEncounters();
 
-        self.embedding = embedding
+        self.embeddings = embedding(np.arange(371)) # type: ignore
+
 
     def reset(self, **kwargs):
         if 'seed' in kwargs and kwargs['seed'] is not None:
@@ -63,7 +64,7 @@ class StsFightEnv(gym.Env):
         return obs, reward, terminated, False, {}
 
     def _getHandEmbeddings(self) -> list[np.typing.ArrayLike]:
-        return [np.array(self.embedding(int(card.id)), np.float32) for card in self.bc.getCardsInHand()]  # type: ignore
+        return [np.array(self.embeddings[int(card.id)], np.float32) for card in self.bc.getCardsInHand()]  # type: ignore
 
     def _getClosestCardHandIdx(self, embedding_action: np.typing.ArrayLike) -> np.intp:
         return np.argmin([np.linalg.norm(embedding_action-card_embedding) for card_embedding in self._getHandEmbeddings()])  # type: ignore
