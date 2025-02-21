@@ -5,3 +5,6 @@ tqdm
 flax
 optax
 matplotlib
+gymnasium
+seaborn
+pandas
