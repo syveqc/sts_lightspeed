@@ -20,7 +20,7 @@ class Model(nnx.Module):
         self.linear6 = nnx.Linear(512, dout, rngs=rngs)
 
     def __call__(self, x):
-        x = jnp.array([x], dtype=jnp.float32)
+        x = jnp.expand_dims(jnp.array(x, dtype=jnp.float32), 1)
         x = nnx.relu(self.linear1(x))
         x = self.dropout1(self.batch_norm1(x))
         x = nnx.relu(self.linear2(x))
