@@ -2,6 +2,7 @@
 // Created by keega on 9/16/2021.
 //
 
+#include <cstdlib>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
@@ -164,12 +165,10 @@ PYBIND11_MODULE(slaythespire, m) {
         }, "returns a string representation of the GameContext")
         .def("populateMonsterList", &GameContext::populateMonsterList, "randomly generate a new encounter and populate the monsters list with it")
         .def("generateRandomDeck", [](GameContext &gc, int numberOfCardsToGenerate, CharacterClass cc, int seed, int retainCards) {
+            srand(seed);
             while(gc.deck.size() > retainCards) {
-                gc.deck.remove(gc, gc.deck.size()-1);
+                gc.deck.remove(gc, rand() % gc.deck.size());
             }
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            std::uniform_real_distribution<double> distr(0.0, 1.0);
             for (int i = 0; i < numberOfCardsToGenerate; i++) {
                 std::vector<CardId> *cardCollection;
                 switch (cc) {
@@ -187,8 +186,7 @@ PYBIND11_MODULE(slaythespire, m) {
                         break;
                  }
                 int size = cardCollection->size() + gc.colorlessCards.size() + gc.curseCards.size();
-                double random = distr(gen);
-                int id = int(random*size);
+                int id = rand() % size;
 
                 CardId cardid = CardId::INVALID;
                 if (id < cardCollection->size())
