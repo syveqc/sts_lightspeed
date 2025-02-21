@@ -1,8 +1,10 @@
 from flax import nnx
+import orbax.checkpoint as ocp
 import jax.numpy as jnp
 from generate_card_embeddings import train_with_model
 import numpy as np
 import time as time
+import sys
 
 class Model(nnx.Module):
     def __init__(self, din, dout, rngs: nnx.Rngs):
@@ -27,9 +29,14 @@ class Model(nnx.Module):
 input_size = 20
 model = Model(1, input_size, rngs=nnx.Rngs(0))  # eager initialization
 dist = lambda x,y: jnp.linalg.norm(x-y, axis=1)
-batch_size = 256
-train_steps = 1000
+batch_size = 1024
+train_steps = 100
 
 losses = train_with_model(model, dist, batch_size, train_steps)
 
 np.save(f"base_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
+
+ckpt_dir = ocp.test_utils.erase_and_create_empty(sys.argv[1])
+checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
+_, _, state = nnx.split(model, nnx.RngState, ...)
+checkpointer.save(ckpt_dir / 'pure_dict', state)
