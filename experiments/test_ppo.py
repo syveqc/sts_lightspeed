@@ -8,6 +8,8 @@ from flax import nnx
 import sys
 import jax.numpy as jnp
 
+import gymnasium as gym
+
 class Model(nnx.Module):
     def __init__(self, din, dout, rngs: nnx.Rngs):
         self.linear1 = nnx.Linear(din, 512, rngs=rngs)
@@ -42,6 +44,7 @@ def mock_embedding(card: int):
     return np.array([card/370.0], np.float32)
 
 env = StsFightEnv(sts.CharacterClass.IRONCLAD, 0, 15, 5, model, 20)
+env = gym.wrappers.TimeLimit(env, 1000)
 print(env.observation_space)
 obs, _ = env.reset()
 print(obs.shape)
