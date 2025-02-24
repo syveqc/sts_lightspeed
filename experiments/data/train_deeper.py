@@ -59,9 +59,14 @@ class Model(nnx.Module):
 input_size = 20
 model = Model(1, input_size, rngs=nnx.Rngs(0))  # eager initialization
 dist = lambda x,y: jnp.linalg.norm(x-y, axis=1)
-batch_size = 256
+batch_size = 2048
 train_steps = 10000
 
 losses = train_with_model(model, dist, batch_size, train_steps)
 
-np.save(f"deeper_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
+np.save(f"results/deeper_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
+
+ckpt_dir = ocp.test_utils.erase_and_create_empty(sys.argv[1])
+checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
+_, _, state = nnx.split(model, nnx.RngState, ...)
+checkpointer.save(ckpt_dir / 'deeper', state)
