@@ -1,8 +1,10 @@
 from flax import nnx
 import jax
+import orbax.checkpoint as ocp
 import jax.numpy as jnp
 import numpy as np
 import time as time
+import sys
 
 class Model(nnx.Module):
     def __init__(self, dout, rngs: nnx.Rngs):
@@ -37,7 +39,7 @@ if __name__=='__main__':
     model = Model(input_size, rngs=nnx.Rngs(0))  # eager initialization
     dist = lambda x,y: jnp.linalg.norm(x-y, axis=1)
     batch_size = 2048
-    train_steps = 100000
+    train_steps = 10000
     learning_rate = 1e-3
 
     losses = train_with_model(model, dist, batch_size, train_steps, learning_rate)
