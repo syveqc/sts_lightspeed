@@ -60,9 +60,9 @@ class StsFightEnv(gym.Env):
         reward = 0
         if self.bc.outcome == sts.Outcome.PLAYER_VICTORY:
             reward = 1
-        elif self.bc.outcome == sts.Outcome.PLAYER_LOSS:
+        elif self.bc.outcome == sts.Outcome.PLAYER_LOSS or not self.bc.canDraw():
             reward = -1
-        terminated = self.bc.outcome != sts.Outcome.UNDECIDED
+        terminated = self.bc.outcome != sts.Outcome.UNDECIDED or not self.bc.canDraw()
 
         return obs, reward, terminated, False, {}
 
