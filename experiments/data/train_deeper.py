@@ -4,6 +4,7 @@ import jax.numpy as jnp
 import numpy as np
 import time as time
 import sys
+import os
 
 class Model(nnx.Module):
     def __init__(self, din, dout, rngs: nnx.Rngs):
@@ -69,7 +70,15 @@ if __name__=='__main__':
 
     np.save(f"results/deeper_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
 
-    ckpt_dir = ocp.test_utils.erase_and_create_empty(sys.argv[1])
     checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
     _, _, state = nnx.split(model, nnx.RngState, ...)
-    checkpointer.save(ckpt_dir / 'deeper', state)
+
+    checkpoint_dir = sys.argv[1]
+    if checkpoint_dir.endswith('/'):
+        checkpoint_dir = checkpoint_dir[:-1]
+
+    checkpoint_location = f"{checkpoint_dir}/deeper"
+    if os.path.exists(checkpoint_location):
+        print('checkpoint already exists, skipping...')
+    else:
+        checkpointer.save(checkpoint_location, state)

@@ -5,9 +5,10 @@ import jax.numpy as jnp
 import numpy as np
 import time as time
 import sys
+import os
 
 class Model(nnx.Module):
-    def __init__(self, dout, rngs: nnx.Rngs):
+    def __init__(self, din, dout, rngs: nnx.Rngs):
         self.linear1 = nnx.Linear(371, 512, rngs=rngs)
         self.batch_norm1 = nnx.BatchNorm(512, rngs=rngs)
         self.dropout1 = nnx.Dropout(0.2, rngs=rngs)
@@ -36,7 +37,7 @@ class Model(nnx.Module):
 if __name__=='__main__':
     from generate_card_embeddings import train_with_model
     input_size = 20
-    model = Model(input_size, rngs=nnx.Rngs(0))  # eager initialization
+    model = Model(1, input_size, rngs=nnx.Rngs(0))  # eager initialization
     dist = lambda x,y: jnp.linalg.norm(x-y, axis=1)
     batch_size = 2048
     train_steps = 10000
@@ -46,7 +47,15 @@ if __name__=='__main__':
 
     np.save(f"results/one_hot_{batch_size}_{input_size}_{learning_rate}_{int(time.time())}.npy", np.array(losses))  # type: ignore
 
-    ckpt_dir = ocp.test_utils.erase_and_create_empty(sys.argv[1])
     checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
     _, _, state = nnx.split(model, nnx.RngState, ...)
-    checkpointer.save(ckpt_dir / 'one_hot', state)
+
+    checkpoint_dir = sys.argv[1]
+    if checkpoint_dir.endswith('/'):
+        checkpoint_dir = checkpoint_dir[:-1]
+
+    checkpoint_location = f"{checkpoint_dir}/one_hot"
+    if os.path.exists(checkpoint_location):
+        print('checkpoint already exists, skipping...')
+    else:
+        checkpointer.save(checkpoint_location, state)
