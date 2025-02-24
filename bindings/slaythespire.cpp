@@ -128,7 +128,10 @@ PYBIND11_MODULE(slaythespire, m) {
              bc.endTurn();
              bc.setState(InputState::EXECUTING_ACTIONS);
              bc.executeActions();
-        }, "ends the players turn");
+        }, "ends the players turn")
+        .def("canDraw", [](BattleContext &bc) {
+        	return bc.cards.drawPile.size() + bc.cards.discardPile.size() > 0;
+        }, "returns whether or not there are cards in the draw or discard piles left");
 
     pybind11::class_<GameContext> gameContext(m, "GameContext");
     gameContext.def(pybind11::init<CharacterClass, std::uint64_t, int>())

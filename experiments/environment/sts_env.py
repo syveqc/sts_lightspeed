@@ -47,9 +47,12 @@ class StsFightEnv(gym.Env):
         # take action in simulator
         card_to_play = self._getClosestCardHandIdx(action[:-1])
         target = int((action[-1]+1)*3)
-        if target < 5:
+        print(f'monsters: {self.bc.printMonsterGroup()}')
+        if target < 5 and target in self.bc.getTargetableMonsterIds():
+            print(f'playing {self.bc.getCardsInHand()[card_to_play]} at index {card_to_play} at target {target}')
             self.bc.playCardInHand(card_to_play, target)
-        else:
+        if target >= 5 or len(self.bc.getCardsInHand()) == 0:
+            print('ending turn')
             self.bc.endTurn()
 
         # observe new state and reward
