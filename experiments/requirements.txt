@@ -11,3 +11,4 @@ pandas
 torch
 stable_baselines3
 orbax
+tensorboard
