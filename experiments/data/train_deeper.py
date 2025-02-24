@@ -1,6 +1,5 @@
 from flax import nnx
 import jax.numpy as jnp
-from generate_card_embeddings import train_with_model
 import numpy as np
 import time as time
 
@@ -56,17 +55,19 @@ class Model(nnx.Module):
         x = self.dropout9(self.batch_norm9(x))
         return self.linear10(x)  # type: ignore
 
-input_size = 20
-model = Model(1, input_size, rngs=nnx.Rngs(0))  # eager initialization
-dist = lambda x,y: jnp.linalg.norm(x-y, axis=1)
-batch_size = 2048
-train_steps = 10000
+if __name__=='__main__':
+    from generate_card_embeddings import train_with_model
+    input_size = 20
+    model = Model(1, input_size, rngs=nnx.Rngs(0))  # eager initialization
+    dist = lambda x,y: jnp.linalg.norm(x-y, axis=1)
+    batch_size = 2048
+    train_steps = 10000
 
-losses = train_with_model(model, dist, batch_size, train_steps)
+    losses = train_with_model(model, dist, batch_size, train_steps)
 
-np.save(f"results/deeper_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
+    np.save(f"results/deeper_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
 
-ckpt_dir = ocp.test_utils.erase_and_create_empty(sys.argv[1])
-checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
-_, _, state = nnx.split(model, nnx.RngState, ...)
-checkpointer.save(ckpt_dir / 'deeper', state)
+    ckpt_dir = ocp.test_utils.erase_and_create_empty(sys.argv[1])
+    checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
+    _, _, state = nnx.split(model, nnx.RngState, ...)
+    checkpointer.save(ckpt_dir / 'deeper', state)

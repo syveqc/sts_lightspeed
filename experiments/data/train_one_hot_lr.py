@@ -1,11 +1,12 @@
 from flax import nnx
+import jax
 import jax.numpy as jnp
 import numpy as np
 import time as time
 
 class Model(nnx.Module):
-    def __init__(self, din, dout, rngs: nnx.Rngs):
-        self.linear1 = nnx.Linear(din, 512, rngs=rngs)
+    def __init__(self, dout, rngs: nnx.Rngs):
+        self.linear1 = nnx.Linear(371, 512, rngs=rngs)
         self.batch_norm1 = nnx.BatchNorm(512, rngs=rngs)
         self.dropout1 = nnx.Dropout(0.2, rngs=rngs)
         self.linear2 = nnx.Linear(512, 512, rngs=rngs)
@@ -19,6 +20,7 @@ class Model(nnx.Module):
         self.linear6 = nnx.Linear(512, dout, rngs=rngs)
 
     def __call__(self, x):
+        x = jax.nn.one_hot(x.squeeze(1), 371)
         x = nnx.relu(self.linear1(x))
         x = self.dropout1(self.batch_norm1(x))
         x = nnx.relu(self.linear2(x))
@@ -32,16 +34,17 @@ class Model(nnx.Module):
 if __name__=='__main__':
     from generate_card_embeddings import train_with_model
     input_size = 20
-    model = Model(1, input_size, rngs=nnx.Rngs(0))  # eager initialization
+    model = Model(input_size, rngs=nnx.Rngs(0))  # eager initialization
     dist = lambda x,y: jnp.linalg.norm(x-y, axis=1)
     batch_size = 2048
-    train_steps = 10000
+    train_steps = 100000
+    learning_rate = 1e-2
 
-    losses = train_with_model(model, dist, batch_size, train_steps)
+    losses = train_with_model(model, dist, batch_size, train_steps, learning_rate)
 
-    np.save(f"results/more_dropout_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
+    np.save(f"results/one_hot_{batch_size}_{input_size}_{learning_rate}_{int(time.time())}.npy", np.array(losses))  # type: ignore
 
     ckpt_dir = ocp.test_utils.erase_and_create_empty(sys.argv[1])
     checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
     _, _, state = nnx.split(model, nnx.RngState, ...)
-    checkpointer.save(ckpt_dir / 'more_dropout', state)
+    checkpointer.save(ckpt_dir / 'one_hot', state)
