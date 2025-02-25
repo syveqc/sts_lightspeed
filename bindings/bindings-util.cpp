@@ -69,6 +69,15 @@ namespace sts {
         return ret;
     }
 
+    std::array<float, 3> RLInterface::getPlayerGameEmbedding(GameContext &gc) {
+        std::array<float, 3> ret{};
+        ret[0] = (float) gc.cc;
+        ret[1] = gc.curHp;
+        ret[2] = gc.maxHp;
+
+        return ret;
+    }
+
     void RLInterface::prettyPrintStateEmbedding(GameContext &gc, BattleContext &bc) {
         std::cout << "---------------------------------------" << std::endl;
 

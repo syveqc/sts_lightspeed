@@ -44,6 +44,7 @@ namespace sts {
         static std::array<float, 214> getStateEmbedding(GameContext &gc, BattleContext &bc);
         static std::array<float, 22> getMonsterEmbedding(Monster &monster);
         static std::array<float, 100> getPlayerEmbedding(Player &player);
+        static std::array<float, 3> getPlayerGameEmbedding(GameContext &gc);
         static void prettyPrintStateEmbedding(GameContext &gc, BattleContext &bc);
         static std::vector<MonsterEncounter> getImplementedMonsterEncounters();
     };
