@@ -317,6 +317,7 @@ namespace sts {
         Rewards createCombatReward();
         Rewards createEliteCombatReward();
         Rewards createBossCombatReward();
+        Rewards getRewardsFromBattle(MonsterEncounter encounter);
 
         Event getShrine(Random &eventRngCopy);
         Event getEvent(Random &eventRngCopy);

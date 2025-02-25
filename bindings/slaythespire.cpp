@@ -15,6 +15,7 @@
 
 #include "combat/BattleContext.h"
 #include "constants/CharacterClasses.h"
+#include "constants/Rooms.h"
 #include "game/GameContext.h"
 #include "sim/ConsoleSimulator.h"
 #include "sim/search/ScumSearchAgent2.h"
@@ -137,7 +138,11 @@ PYBIND11_MODULE(slaythespire, m) {
     gameContext.def(pybind11::init<CharacterClass, std::uint64_t, int>())
         .def("pick_reward_card", &sts::py::pickRewardCard, "choose to obtain the card at the specified index in the card reward list")
         .def("skip_reward_cards", &sts::py::skipRewardCards, "choose to skip the card reward (increases max_hp by 2 with singing bowl)")
-        .def("get_card_reward", &sts::py::getCardReward, "return the current card reward list")
+        .def("get_card_rewards", [](GameContext &gc, MonsterEncounter encounter){ //changed from original to allow for more flexible retrieval of rewards
+            auto r = gc.getRewardsFromBattle(encounter);
+            const auto &cardList = r.cardRewards[r.cardRewardCount-1];
+            return std::vector<Card>(cardList.begin(), cardList.end());
+        }, "return the current card reward list")
         .def_property_readonly("encounter", [](const GameContext &gc) { return gc.info.encounter; })
         .def_property_readonly("deck",
                [](const GameContext &gc) { return std::vector(gc.deck.cards.begin(), gc.deck.cards.end());},

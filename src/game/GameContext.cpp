@@ -6,12 +6,15 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 #include "constants/Cards.h"
+#include "constants/MonsterEncounters.h"
 #include "constants/RelicPools.h"
 #include "constants/CardPools.h"
 #include "combat/BattleContext.h"
+#include "game/Rewards.h"
 #include "game/SaveFile.h"
 #include "game/Game.h"
 #include "sim/PrintHelpers.h"
@@ -3630,6 +3633,16 @@ void GameContext::chooseEventOption(int idx) {
             assert(false);
             break;
     }
+}
+
+Rewards GameContext::getRewardsFromBattle(MonsterEncounter encounter) {
+    if (isBossEncounter(encounter))
+        return createBossCombatReward();
+
+    if (isEliteEncounter(encounter))
+        return createEliteCombatReward();
+
+    return createCombatReward();
 }
 
 void GameContext::chooseSelectCardScreenOption(int idx) {
