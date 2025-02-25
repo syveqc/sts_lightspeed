@@ -21,6 +21,7 @@ class StsFightEnv(gym.Env):
         self.cards_from_start = cards_from_start
 
         self.monster_encounters = sts.RLInterface.getImplementedMonsterEncounters();
+        self.encounter = None
 
         self.embeddings = embedding(np.arange(371)) # type: ignore
 
@@ -35,11 +36,12 @@ class StsFightEnv(gym.Env):
         np.random.seed(seed)
 
         # setup game
-        self.gc = sts.GameContext(self.character_class, seed, self.ascension)
-        self.gc.generateRandomDeck(self.decksize-self.cards_from_start, self.character_class, seed, self.cards_from_start)
+        if 'regenerate_deck' not in kwargs or kwargs['regenerate_deck']:
+            self.gc = sts.GameContext(self.character_class, seed, self.ascension)
+            self.gc.generateRandomDeck(self.decksize-self.cards_from_start, self.character_class, seed, self.cards_from_start)
         self.bc = sts.BattleContext()
-        encounter = self.monster_encounters[np.random.randint(0, len(self.monster_encounters))]
-        self.bc.init(self.gc, encounter)
+        self.encounter = self.monster_encounters[np.random.randint(0, len(self.monster_encounters))]
+        self.bc.init(self.gc, self.encounter)
 
         return self._getObservation(), {}
 
