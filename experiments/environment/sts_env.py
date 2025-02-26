@@ -68,7 +68,7 @@ class StsFightEnv(gym.Env):
         if 'seed' in kwargs and kwargs['seed'] is not None:
             seed = kwargs['seed']
         else:
-            seed = int(time.time())
+            seed = int((time.time()*1000)%1000000)
 
         # re-seed numpy
         np.random.seed(seed)
