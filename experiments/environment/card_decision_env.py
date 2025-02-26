@@ -70,7 +70,7 @@ class CardDecisionEnv(gym.Env):
         obs = {'player': np.array(data['player']),
                'deck': padded_deck,
                'card_options': padded_current_card_options}
-        terminated = data['terminated'] or len(obs['deck']) > 50
+        terminated = data['terminated'] or len(data['deck']) >= 50
         return obs, terminated
 
     def _getClosestCardIdToCurrentOptions(self, action):
