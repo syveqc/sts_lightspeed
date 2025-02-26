@@ -93,7 +93,7 @@ if __name__ == '__main__':
         x = model(x)
         return x
 
-    env = RemoteFightingEnv(sts.CharacterClass.IRONCLAD, 0, embedding_wrapper, 20, 'localhost', 7351)
+    env = RemoteFightingEnv(sts.CharacterClass.IRONCLAD, 0, embedding_wrapper, 20, 'localhost', 7351, config_file_path='testconfig.json')
     obs, _ = env.reset()
 
     ppo = PPO("MlpPolicy", env, verbose=1, device='cpu', tensorboard_log=f"ppo_log/{model_name}")
