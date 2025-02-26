@@ -155,6 +155,16 @@ PYBIND11_MODULE(slaythespire, m) {
              [](GameContext &gc, Card card) { gc.deck.obtain(gc, card); },
              "add a card to the deck"
         )
+        .def("set_player_cur_hp", [](GameContext &gc, int curHp) {
+             if (curHp > gc.maxHp)
+                curHp = gc.maxHp;
+             gc.curHp = curHp;
+        }, "sets the players current HP")
+        .def("set_player_max_hp", [](GameContext &gc, int maxHp) {
+             gc.maxHp = maxHp;
+             if (gc.curHp > gc.maxHp)
+                gc.curHp = gc.maxHp;
+        }, "sets the players maximum HP")
         .def("remove_card",
             [](GameContext &gc, int idx) {
                 if (idx < 0 || idx >= gc.deck.size()) {
