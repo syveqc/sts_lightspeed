@@ -77,7 +77,7 @@ class CardDecisionEnv(gym.Env):
         return self.current_card_options[np.argmin([np.linalg.norm(self.embeddings[cardid] - np.array(action)) for cardid in self.current_card_options])]
 
 if __name__ == '__main__':
-    from stable_baselines3 import PPO
+    from stable_baselines3 import SAC
 
     import slaythespire as sts
     import numpy as np
@@ -115,8 +115,8 @@ if __name__ == '__main__':
     env = CardDecisionEnv(sts.CharacterClass.IRONCLAD, 0, embedding_wrapper, 20, 'localhost', 7351)
     obs, _ = env.reset()
 
-    ppo = PPO("MultiInputPolicy", env, verbose=1, device='cpu', tensorboard_log=f"ppo_log/{model_name}")
-    ppo.learn(total_timesteps=250000)
+    ppo = SAC("MultiInputPolicy", env, verbose=1, device='cpu', tensorboard_log=f"ppo_log/{model_name}")
+    ppo.learn(total_timesteps=250_000)
     ppo.save("ppo_decisions")
 
 

@@ -97,7 +97,7 @@ if __name__ == '__main__':
     obs, _ = env.reset()
 
     ppo = PPO("MlpPolicy", env, verbose=1, device='cpu', tensorboard_log=f"ppo_log/{model_name}")
-    ppo.learn(total_timesteps=250000)
+    ppo.learn(total_timesteps=2_500_000)
     ppo.save("ppo_fighting")
 
 
