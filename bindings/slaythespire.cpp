@@ -107,7 +107,9 @@ PYBIND11_MODULE(slaythespire, m) {
              bc.executeActions();
         }, "plays a card at a target")
         .def("getCardsInHand", [](BattleContext &bc) {
-             auto hand = bc.cards.hand; // copy because of error
+             std::vector<CardInstance> hand;
+             for (int i = 0; i < bc.cards.cardsInHand; i++)
+	         hand.push_back(bc.cards.hand[i]);
              return hand;
         }, "get the cards currently in hand")
         .def("getPlayableCards", [](BattleContext &bc) {
