@@ -6,10 +6,11 @@ from flax import nnx
 import slaythespire as sts
 import torch
 
+import json
 from typing import Callable, Union
 
 class StsFightEnv(gym.Env):
-    def __init__(self, character_class: sts.CharacterClass, ascension: int, decksize: int, cards_from_start: int, embedding: Union[nnx.Module, torch.nn.Module, Callable[[int], np.typing.ArrayLike]], embedding_dim: int):
+    def __init__(self, character_class: sts.CharacterClass, ascension: int, decksize: int, cards_from_start: int, embedding: Union[nnx.Module, torch.nn.Module, Callable[[int], np.typing.ArrayLike]], embedding_dim: int, config_file_path=None):
         self.embedding_dim = embedding_dim
         self.observation_space = Box(-1, 1, (214+10*embedding_dim,))
         self.action_space = Box(-1,1,(embedding_dim+1,))
@@ -22,6 +23,43 @@ class StsFightEnv(gym.Env):
 
         self.monster_encounters = sts.RLInterface.getImplementedMonsterEncounters();
         self.encounter = None
+        self.config = None
+        if config_file_path is not None:
+            with open(config_file_path, 'r') as f:
+                self.config = json.load(f)
+
+        self.starting_cards = []
+        self.curHp = None
+        self.maxHp = None
+        if self.config is not None:
+            if 'monster_encounters' in self.config:
+                self.monster_encounters = []
+                for encounter_id in self.config['monster_encounters']:
+                    if isinstance(encounter_id, str):
+                        monster_encounter_attr = getattr(sts.MonsterEncounter, encounter_id)
+                        if isinstance(monster_encounter_attr, sts.MonsterEncounter):
+                            self.monster_encounters.append(monster_encounter_attr)
+                    else: 
+                        self.monster_encounters.append(sts.MonsterEncounter(encounter_id))
+            if 'ascension' in self.config:
+                self.ascension = self.config['ascension']
+            if 'cards_from_start' in self.config:
+                self.cards_from_start = self.config['cards_from_start']
+            if 'decksize' in self.config:
+                self.decksize = self.config['decksize']
+            if 'starting_cards' in self.config:
+                for card_id in self.config['starting_cards']:
+                    if isinstance(card_id, str):
+                        card_id_attr = getattr(sts.CardId, card_id)
+                        if isinstance(card_id_attr, sts.CardId):
+                            self.starting_cards.append(card_id_attr)
+                    else: 
+                        self.starting_cards.append(sts.CardId(card_id))
+                self.starting_cards = [sts.Card(card_id) for card_id in self.starting_cards]
+            if 'curHp' in self.config:
+                self.curHp = self.config['curHp']
+            if 'maxHp' in self.config:
+                self.maxHp = self.config['maxHp']
 
         self.embeddings = embedding(np.arange(371)) # type: ignore
 
@@ -39,8 +77,15 @@ class StsFightEnv(gym.Env):
         if 'regenerate_deck' not in kwargs or kwargs['regenerate_deck']:
             self.gc = sts.GameContext(self.character_class, seed, self.ascension)
             self.gc.generateRandomDeck(self.decksize-self.cards_from_start, self.character_class, seed, self.cards_from_start)
+            for card in self.starting_cards:
+                self.gc.obtain_card(card)
+            if self.curHp is not None:
+                self.gc.set_player_cur_hp(self.curHp)
+            if self.maxHp is not None:
+                self.gc.set_player_max_hp(self.maxHp)
         self.bc = sts.BattleContext()
-        self.encounter = self.monster_encounters[np.random.randint(0, len(self.monster_encounters))]
+        encounter = np.random.randint(0, len(self.monster_encounters))
+        self.encounter = self.monster_encounters[encounter]
         self.bc.init(self.gc, self.encounter)
 
         return self._getObservation(), {}
