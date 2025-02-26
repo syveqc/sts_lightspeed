@@ -13,8 +13,8 @@ from flax import nnx
 from environment.sts_env import StsFightEnv
 
 class RemoteFightingEnv(StsFightEnv):
-    def __init__(self, character_class: sts.CharacterClass, ascension: int, embedding: Union[nnx.Module, torch.nn.Module, Callable[[int], np.typing.ArrayLike]], embedding_dim: int, ip: str, port: int):
-        super().__init__(character_class, ascension, 10, 10, embedding, embedding_dim)
+    def __init__(self, character_class: sts.CharacterClass, ascension: int, embedding: Union[nnx.Module, torch.nn.Module, Callable[[int], np.typing.ArrayLike]], embedding_dim: int, ip: str, port: int, config_file_path=None):
+        super().__init__(character_class, ascension, 10, 10, embedding, embedding_dim, config_file_path=config_file_path)
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind((ip, port))
