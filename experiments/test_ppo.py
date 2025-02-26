@@ -40,8 +40,10 @@ print(env.observation_space)
 obs, _ = env.reset()
 print(obs.shape)
 
-model = PPO("MlpPolicy", env, verbose=1, device='cpu', tensorboard_log=f"ppo_log/{model_name}")
-model.learn(total_timesteps=250000)
-model.save("ppo_sts")
+model = PPO("MlpPolicy", env, verbose=1, device='cpu', tensorboard_log=f'ppo_log/{model_name}')
+iterations = 36
+for i in range(iterations):
+	model.learn(total_timesteps=1_000_000, reset_num_timesteps=(i==0))
+	model.save(f"ppo_sts_{i}")
 
 
