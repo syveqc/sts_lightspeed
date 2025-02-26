@@ -37,7 +37,7 @@ class RemoteFightingEnv(StsFightEnv):
         data = json.loads(self.data.decode('utf-8'))
         print(data)
         self.gc.obtain_card(sts.Card(sts.CardId(data['card_id'])))
-        kwargs['regenerate_deck'] = data['reset'] or self.bc.outcome == sts.Outcome.PLAYER_LOSS
+        kwargs['regenerate_deck'] = data['reset'] or self.bc.outcome != sts.Outcome.PLAYER_VICTORY
 
         obs, info = super().reset(**kwargs)
 
@@ -60,7 +60,7 @@ class RemoteFightingEnv(StsFightEnv):
         return {'player': sts.RLInterface.getPlayerGameEmbedding(self.gc),
                 'deck': [int(card.id) for card in self.gc.deck],
                 'card_options': [int(card.id) for card in self.gc.get_card_rewards(self.encounter)],
-                'terminated': self.gc.outcome != sts.GameOutcome.UNDECIDED}
+                'terminated': self.bc.outcome != sts.Outcome.PLAYER_VICTORY}
 
 if __name__ == '__main__':
     from stable_baselines3 import PPO
