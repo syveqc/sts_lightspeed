@@ -30,7 +30,6 @@ class CardDecisionEnv(gym.Env):
 
 
     def reset(self, **kwargs):
-        print('reset')
         if 'seed' in kwargs and kwargs['seed'] is not None:
             seed = kwargs['seed']
         else:
@@ -50,7 +49,6 @@ class CardDecisionEnv(gym.Env):
         self._obtainCard(action)
         obs, terminated = self._getObservation()
         reward = 1
-        print(f'step {terminated}')
 
         return obs, reward, terminated, False, {}
 
@@ -62,7 +60,6 @@ class CardDecisionEnv(gym.Env):
     def _getObservation(self):
         data = self.socket.recv(50000)
         data = json.loads(data.decode('utf-8'))
-        print(data)
         self.current_card_options = data['card_options']
         deck_embeddings = [self.embeddings[cardid] for cardid in data['deck']]
         concatenated_deck = np.stack(deck_embeddings)

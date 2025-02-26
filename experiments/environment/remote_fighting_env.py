@@ -29,13 +29,10 @@ class RemoteFightingEnv(StsFightEnv):
         super().reset()
 
     def reset(self, **kwargs):
-        print('reset')
-
         if self.receive:
             self.data = self.conn.recv(1024)
             self.receive = False
         data = json.loads(self.data.decode('utf-8'))
-        print(data)
         self.gc.obtain_card(sts.Card(sts.CardId(data['card_id'])))
         kwargs['regenerate_deck'] = data['reset'] or self.bc.outcome != sts.Outcome.PLAYER_VICTORY
 
@@ -45,7 +42,6 @@ class RemoteFightingEnv(StsFightEnv):
         return obs, info
 
     def step(self, action): # type: ignore
-        print('step')
         self.timestep += 1
         obs, reward, terminated, _, info = super().step(action)
         truncated = self.timestep > 1000
