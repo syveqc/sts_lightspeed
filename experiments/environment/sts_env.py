@@ -10,7 +10,7 @@ import json
 from typing import Callable, Union
 
 class StsFightEnv(gym.Env):
-    def __init__(self, character_class: sts.CharacterClass, ascension: int, decksize: int, cards_from_start: int, embedding: Union[nnx.Module, torch.nn.Module, Callable[[int], np.typing.ArrayLike]], embedding_dim: int, config_file_path=None):
+    def __init__(self, character_class: sts.CharacterClass, ascension: int, decksize: int, cards_from_start: int, embedding: Union[nnx.Module, torch.nn.Module, Callable[[int], np.typing.ArrayLike]], embedding_dim: int, print_flag: bool = False, config_file_path=None):
         self.embedding_dim = embedding_dim
         self.observation_space = Box(-1, 1, (214+10*embedding_dim,))
         self.action_space = Box(-1,1,(embedding_dim+1,))
@@ -27,6 +27,7 @@ class StsFightEnv(gym.Env):
         if config_file_path is not None:
             with open(config_file_path, 'r') as f:
                 self.config = json.load(f)
+        self.print_flag = print_flag
 
         self.starting_cards = []
         self.curHp = None
@@ -86,25 +87,37 @@ class StsFightEnv(gym.Env):
         self.bc = sts.BattleContext()
         encounter = np.random.randint(0, len(self.monster_encounters))
         self.encounter = self.monster_encounters[encounter]
+        if self.print_flag:
+            print(f"encountering {self.encounter}")
         self.bc.init(self.gc, self.encounter)
+        if self.print_flag:
+            sts.RLInterface.prettyPrintStateEmbedding(self.gc, self.bc)
 
         return self._getObservation(), {}
 
     def step(self, action):
         # take action in simulator
         target = int((action[-1]+1)*3)
-        # print(f'monsters: {self.bc.printMonsterGroup()}')
-            # print(f'playing {self.bc.getCardsInHand()[card_to_play]} at index {card_to_play} at target {target}')
-            # print('ending turn')
         took_invalid_action = False
         if target >= 5 or len(self.bc.getPlayableCards()) == 0:
+            if self.print_flag:
+                print("ending turn")
+                for monster, move in zip(self.bc.get_alive_monsters(), self.bc.get_alive_monster_intentions()):
+                    print(f"monster {monster} uses move {move}")
             self.bc.endTurn()
         elif target < 5:
             card_to_play = self._get_closest_playable_card(action[:-1])
             if not card_to_play.requires_target() or target in self.bc.getTargetableMonsterIds():
+                if self.print_flag:
+                    print(f'playing {card_to_play} at target {target}')
                 self.bc.playCard(card_to_play, target)
             else:
                 took_invalid_action = True
+                if self.print_flag:
+                    print('invalid action, skipping')
+
+        if self.print_flag:
+            sts.RLInterface.prettyPrintStateEmbedding(self.gc, self.bc)
 
         # observe new state and reward
         obs = self._getObservation()
