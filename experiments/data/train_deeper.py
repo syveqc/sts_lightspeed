@@ -68,7 +68,7 @@ if __name__=='__main__':
 
     losses = train_with_model(model, dist, batch_size, train_steps)
 
-    np.save(f"results/deeper_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
+    np.save(f"deeper_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
 
     checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
     _, _, state = nnx.split(model, nnx.RngState, ...)

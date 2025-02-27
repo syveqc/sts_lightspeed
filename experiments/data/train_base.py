@@ -40,6 +40,7 @@ if __name__=='__main__':
 
     checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
     _, _, state = nnx.split(model, nnx.RngState, ...)
+    
     checkpoint_dir = sys.argv[1]
     if checkpoint_dir.endswith('/'):
         checkpoint_dir = checkpoint_dir[:-1]
