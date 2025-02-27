@@ -28,6 +28,10 @@ class StsFightEnv(gym.Env):
             with open(config_file_path, 'r') as f:
                 self.config = json.load(f)
         self.print_flag = print_flag
+        self.current_obs = None
+        self.last_obs = None
+        self.end_turn = False
+        self.took_invalid_action = False
 
         self.starting_cards = []
         self.curHp = None
@@ -93,19 +97,20 @@ class StsFightEnv(gym.Env):
         if self.print_flag:
             sts.RLInterface.prettyPrintStateEmbedding(self.gc, self.bc)
 
-        return self._getObservation(), {}
+        self.current_obs = self._getObservation()
+        return self.current_obs, {}
 
     def step(self, action):
         # take action in simulator
         target = int((action[-1]+1)*3)
-        took_invalid_action = False
-        end_turn = False
+        self.took_invalid_action = False
+        self.end_turn = False
         if target >= 5 or len(self.bc.getPlayableCards()) == 0:
             if self.print_flag:
                 print("ending turn")
                 for monster, move in zip(self.bc.get_alive_monsters(), self.bc.get_alive_monster_intentions()):
                     print(f"monster {monster} uses move {move}")
-            end_turn = True
+            self.end_turn = True
         elif target < 5:
             card_to_play = self._get_closest_playable_card(action[:-1])
             if not card_to_play.requires_target() or target in self.bc.getTargetableMonsterIds():
@@ -113,12 +118,12 @@ class StsFightEnv(gym.Env):
                     print(f'playing {card_to_play} at target {target}')
                 self.bc.playCard(card_to_play, target)
             else:
-                took_invalid_action = True
-                end_turn = True
+                self.took_invalid_action = True
+                self.end_turn = True
                 if self.print_flag:
                     print('invalid action, skipping')
 
-        if end_turn:
+        if self.end_turn:
             self.bc.endTurn()
 
         if self.print_flag:
@@ -132,6 +137,9 @@ class StsFightEnv(gym.Env):
         elif self.bc.outcome == sts.Outcome.PLAYER_LOSS or not self.bc.canDraw():
             reward = -1
         terminated = self.bc.outcome != sts.Outcome.UNDECIDED or not self.bc.canDraw()
+
+        self.last_obs = self.current_obs
+        self.current_obs = obs
 
         return obs, reward, terminated, False, {}
 
