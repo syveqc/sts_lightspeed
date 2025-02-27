@@ -10,8 +10,8 @@ class UsedUpEnergyAtEnd(gym.RewardWrapper):
 
     def reward(self, reward: SupportsFloat) -> SupportsFloat:
         energy_left = 3
-        if self.env.end_turn:  # type: ignore
-            energy_left = self.env.current_obs[117]  # type: ignore
+        if self.unwrapped.end_turn:  # type: ignore
+            energy_left = self.unwrapped.current_obs[117]  # type: ignore
             print(f'energy reward: {3-min(energy_left,3)}')
 
         reward += self.coef * (3-min(energy_left,3))/3  # type: ignore

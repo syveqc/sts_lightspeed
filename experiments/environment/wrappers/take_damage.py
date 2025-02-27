@@ -9,7 +9,7 @@ class TakeDamageWrapper(gym.RewardWrapper):
         self.coef = coef
 
     def reward(self, reward: SupportsFloat) -> SupportsFloat:
-        hp_difference = self.env.current_obs[115] - self.env.last_obs[115]  # type: ignore
+        hp_difference = self.unwrapped.current_obs[115] - self.unwrapped.last_obs[115]  # type: ignore
 
         reward += self.coef * hp_difference/80
 

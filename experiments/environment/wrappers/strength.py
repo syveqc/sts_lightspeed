@@ -9,9 +9,8 @@ class StrengthWrapper(gym.RewardWrapper):
         self.coef = coef
 
     def reward(self, reward: SupportsFloat) -> SupportsFloat:
-        strength_difference = self.env.current_obs[126] - self.env.last_obs[126]  # type: ignore
+        strength_difference = self.unwrapped.current_obs[126] - self.unwrapped.last_obs[126]  # type: ignore
 
-        print(strength_difference)
         reward += self.coef * strength_difference/10  # type: ignore
 
         return reward
