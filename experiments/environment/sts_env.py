@@ -92,22 +92,26 @@ class StsFightEnv(gym.Env):
 
     def step(self, action):
         # take action in simulator
-        card_to_play = self._getClosestCardHandIdx(action[:-1])
         target = int((action[-1]+1)*3)
         # print(f'monsters: {self.bc.printMonsterGroup()}')
-        if target < 5 and target in self.bc.getTargetableMonsterIds():
             # print(f'playing {self.bc.getCardsInHand()[card_to_play]} at index {card_to_play} at target {target}')
-            self.bc.playCardInHand(card_to_play, target)
-        if target >= 5 or len(self.bc.getCardsInHand()) == 0:
             # print('ending turn')
+        took_invalid_action = False
+        if target >= 5 or len(self.bc.getPlayableCards()) == 0:
             self.bc.endTurn()
+        elif target < 5:
+            card_to_play = self._get_closest_playable_card(action[:-1])
+            if not card_to_play.requires_target() or target in self.bc.getTargetableMonsterIds():
+                self.bc.playCard(card_to_play, target)
+            else:
+                took_invalid_action = True
 
         # observe new state and reward
         obs = self._getObservation()
         reward = 0
         if self.bc.outcome == sts.Outcome.PLAYER_VICTORY:
             reward = 1
-        elif self.bc.outcome == sts.Outcome.PLAYER_LOSS or not self.bc.canDraw():
+        elif self.bc.outcome == sts.Outcome.PLAYER_LOSS or not self.bc.canDraw() or took_invalid_action:
             reward = -1
         terminated = self.bc.outcome != sts.Outcome.UNDECIDED or not self.bc.canDraw()
 
@@ -116,8 +120,11 @@ class StsFightEnv(gym.Env):
     def _getHandEmbeddings(self) -> list[np.typing.ArrayLike]:
         return [np.array(self.embeddings[int(card.id)], np.float32) for card in self.bc.getCardsInHand()]  # type: ignore
 
-    def _getClosestCardHandIdx(self, embedding_action: np.typing.ArrayLike) -> np.intp:
-        return np.argmin([np.linalg.norm(embedding_action-card_embedding) for card_embedding in self._getHandEmbeddings()])  # type: ignore
+    def _get_playable_card_embeddings(self) -> list[np.typing.ArrayLike]:
+        return [np.array(self.embeddings[int(card.id)], np.float32) for card in self.bc.getPlayableCards()]  # type: ignore
+
+    def _get_closest_playable_card(self, embedding_action: np.typing.ArrayLike) -> np.intp:
+        return self.bc.getPlayableCards()[np.argmin([np.linalg.norm(embedding_action-card_embedding) for card_embedding in self._get_playable_card_embeddings()])]  # type: ignore
 
     def _multisetAggregation(self, embeddings: list[np.typing.ArrayLike]) -> np.typing.ArrayLike:
         # TODO: look up how to do actual multiset aggregation and whether it is useful

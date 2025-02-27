@@ -59,7 +59,8 @@ PYBIND11_MODULE(slaythespire, m) {
             }
             return s += ">";
         }, "returns a string representation of a Card")
-        .def("upgrade", &CardInstance::upgrade);
+        .def("upgrade", &CardInstance::upgrade)
+	.def("requires_target", &CardInstance::requiresTarget);
 
     cardInstance.def_property_readonly("id", &CardInstance::getId)
         .def_property_readonly("upgraded", &CardInstance::isUpgraded)
