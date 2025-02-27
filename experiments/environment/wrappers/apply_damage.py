@@ -11,7 +11,7 @@ class ApplyDamageWrapper(gym.RewardWrapper):
     def reward(self, reward: SupportsFloat) -> SupportsFloat:
         hp_difference = 0.0
         for i in range(5):
-            hp_difference += self.env.current_obs[4+22*i] - self.env.last_obs[4+22*i]  # type: ignore
+            hp_difference += self.unwrapped.current_obs[4+22*i+1] - self.unwrapped.last_obs[4+22*i+1]  # type: ignore
 
         reward -= self.coef * hp_difference/100  # type: ignore
 
