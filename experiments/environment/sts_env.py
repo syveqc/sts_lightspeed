@@ -99,12 +99,13 @@ class StsFightEnv(gym.Env):
         # take action in simulator
         target = int((action[-1]+1)*3)
         took_invalid_action = False
+        end_turn = False
         if target >= 5 or len(self.bc.getPlayableCards()) == 0:
             if self.print_flag:
                 print("ending turn")
                 for monster, move in zip(self.bc.get_alive_monsters(), self.bc.get_alive_monster_intentions()):
                     print(f"monster {monster} uses move {move}")
-            self.bc.endTurn()
+            end_turn = True
         elif target < 5:
             card_to_play = self._get_closest_playable_card(action[:-1])
             if not card_to_play.requires_target() or target in self.bc.getTargetableMonsterIds():
@@ -113,8 +114,12 @@ class StsFightEnv(gym.Env):
                 self.bc.playCard(card_to_play, target)
             else:
                 took_invalid_action = True
+                end_turn = True
                 if self.print_flag:
                     print('invalid action, skipping')
+
+        if end_turn:
+            self.bc.endTurn()
 
         if self.print_flag:
             sts.RLInterface.prettyPrintStateEmbedding(self.gc, self.bc)
@@ -124,7 +129,7 @@ class StsFightEnv(gym.Env):
         reward = 0
         if self.bc.outcome == sts.Outcome.PLAYER_VICTORY:
             reward = 1
-        elif self.bc.outcome == sts.Outcome.PLAYER_LOSS or not self.bc.canDraw() or took_invalid_action:
+        elif self.bc.outcome == sts.Outcome.PLAYER_LOSS or not self.bc.canDraw():
             reward = -1
         terminated = self.bc.outcome != sts.Outcome.UNDECIDED or not self.bc.canDraw()
 
