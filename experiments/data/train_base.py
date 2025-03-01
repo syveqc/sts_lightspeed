@@ -35,8 +35,11 @@ if __name__=='__main__':
     train_steps = 10000
 
     losses = train_with_model(model, dist, batch_size, train_steps)
-
-    np.save(f"base_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
+    
+    loss_dir = sys.argv[2]
+    if loss_dir.endswith('/'):
+        loss_dir = loss_dir[:-1]
+    np.save(f"{loss_dir}/base_{batch_size}_{input_size}_{int(time.time())}.npy", np.array(losses))  # type: ignore
 
     checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
     _, _, state = nnx.split(model, nnx.RngState, ...)

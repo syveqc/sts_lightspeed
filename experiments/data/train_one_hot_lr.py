@@ -40,12 +40,15 @@ if __name__=='__main__':
     model = Model(input_size, rngs=nnx.Rngs(0))  # eager initialization
     dist = lambda x,y: jnp.linalg.norm(x-y, axis=1)
     batch_size = 2048
-    train_steps = 100000
-    learning_rate = 1e-2
+    train_steps = 10000
+    learning_rate = 1e-4
 
     losses = train_with_model(model, dist, batch_size, train_steps, learning_rate)
 
-    np.save(f"results/one_hot_{batch_size}_{input_size}_{learning_rate}_{int(time.time())}.npy", np.array(losses))  # type: ignore
+    loss_dir = sys.argv[2]
+    if loss_dir.endswith('/'):
+        loss_dir = loss_dir[:-1]
+    np.save(f"{loss_dir}/one_hot_{batch_size}_{input_size}_{learning_rate}_{int(time.time())}.npy", np.array(losses))  # type: ignore
 
     checkpointer = ocp.Checkpointer(ocp.StandardCheckpointHandler())
     _, _, state = nnx.split(model, nnx.RngState, ...)
@@ -54,7 +57,7 @@ if __name__=='__main__':
     if checkpoint_dir.endswith('/'):
         checkpoint_dir = checkpoint_dir[:-1]
 
-    checkpoint_location = f"{checkpoint_dir}/one_hot"
+    checkpoint_location = f"{checkpoint_dir}/one_hot_lr"
     if os.path.exists(checkpoint_location):
         print('checkpoint already exists, skipping...')
     else:
