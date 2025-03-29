@@ -7,3 +7,4 @@
 *.zip
 *.npy
 **/checkpoints
+/experiments/checkpoints/*
